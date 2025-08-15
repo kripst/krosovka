@@ -1,0 +1,78 @@
+syntax = "proto3";
+
+option go_package = "github.com/kripst/krosovka/inventory_service/proto";
+
+package inventoryservice;
+
+service InventoryService {
+  rpc CreateSneakers(CreateSneakersRequest) returns (Response);
+  rpc GetSneakers(GetSneakersRequest) returns (GetSneakersResponse);
+  rpc UpdateSneakers(UpdateSneakersRequest) returns (Response);
+  rpc DeleteSneakers(DeleteSneakersRequest) returns (Response);
+}
+
+message Sneaker {
+    int32 sneaker_id = 1;             // Unique identifier
+    string article = 2;                // Product code
+    string sneaker_name = 3;           // Model name
+    string sneaker_description = 4;    // Description
+    double price = 5;                  // Price
+    float size = 6;                    // Size
+    string brand = 7;                  // Manufacturer
+    string production_address = 8;     // Production address
+    string created_at = 9;             // Creation timestamp
+    string updated_at = 10;            // Last update timestamp
+}
+
+message CreateSneakersRequest {
+  int32 request_id = 1;
+  repeated Sneaker sneakers = 2;
+}
+
+message GetSneakersRequest {
+  int32 request_id = 1;
+  repeated int32 sneaker_id = 2;
+  int32 partition = 3;
+  int32 offset    = 4;
+}
+
+message GetSneakersResponse {
+  // Response Metadata
+  int32 status_code = 1;        // HTTP-style status code (200, 404, etc.)
+  string timestamp = 2;         // Response generation time
+  int32 request_id = 3;        // Correlation ID for tracking
+  
+  // Primary Data
+  repeated Sneaker sneakers = 4; // Use array for multiple results
+  
+  // Pagination (optional)
+  int32 total_count = 5;        // Total records available
+  int32 page = 6;              // Current page number
+  int32 page_size = 7;         // Items per page
+}
+
+
+message UpdateSneakersRequest {
+  int32 request_id = 1;
+  repeated Sneaker sneakers = 2;
+}
+
+message DeleteSneakersRequest {
+  int32 request_id = 1;
+  repeated int32 sneaker_ids = 2;  
+}
+
+message Response {
+  int32 request_id = 1;          // Echoes back the request ID for tracking
+  repeated int32 sneaker_ids = 2;         // ID of the created sneaker (if successful)
+  Status status = 3;             // Success/failure status
+  string error_message = 4;      // Detailed error message (if any)
+  int32 status_code = 5;         // HTTP-style status code
+  string timestamp = 6;          // When the response was created
+  
+  enum Status {
+    SUCCESS = 0;
+    FAILURE = 1;
+    VALIDATION_ERROR = 2;
+  }
+}
